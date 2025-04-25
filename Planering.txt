@@ -1,0 +1,6 @@
+Shit to do 
+funktioner:
+1.  för att visa bilderna
+2.  med all data
+3.  för 3 olika classifiers
+4.  för 2 olika feature selections
