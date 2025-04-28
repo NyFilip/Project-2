@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 
-def minist(filePath):
+def mnist(filePath):
     imagesList = []
     imagesMatrix = []
     labels = []
@@ -30,9 +30,39 @@ def minist(filePath):
     imagesMatrix = np.array(imagesMatrix)
     imagesList = np.array(imagesList)                    
     return full, labels, imagesMatrix, imagesList
-
             
+def catdog(filePath):
+    labels = []
+    labels[:98] = np.zeros(99)
+    labels[99:] = np.ones(99)
+    imagesMatrix = []
+    imagesList = []
+    full = []
+    i = 0
+    with open(filePath, 'r') as file:
+        for line in file:
+            parts = line.strip().split()
+            
+            index = parts[0].strip()
+            pixels = list(map(int,parts[1:]))
+
+            imagesMatrix.append(np.array(pixels).reshape(64,64))
+            imagesList.append(np.array(pixels))
+
+            fullTemp = list(pixels)
+            if i < 99:
+                fullTemp.insert(0, 0)
+            else:
+                fullTemp.insert(0,1)
+            full.append(fullTemp)
+            i += 1
+
+    imagesMatrix = np.array(imagesMatrix)
+    imagesList = np.array(imagesList)
+    full = np.array(full)
+    labels = np.array(labels)
+    return full, labels, imagesMatrix, imagesList
+
 
 if __name__ == '__main__':
-    mFull, mLabel, mImageM, mImageL = minist('Numbers.txt')
-    print(f'{mFull.shape} \n {mLabel.shape} \n {mImageM.shape} \n {mImageL.shape}')
+
