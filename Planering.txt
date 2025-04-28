@@ -4,3 +4,8 @@ funktioner:
 2.  med all data
 3.  för 3 olika classifiers
 4.  för 2 olika feature selections
+
+Main: 
+Wrapper method (lasso?)
+CV for when to stop
+embedding? 
