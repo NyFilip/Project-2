@@ -24,12 +24,3 @@ def display_images_from_rows(array, cmap='gray'):
         plt.title(f"Image {i}")
         plt.axis('off')
     plt.show()
-# Suppose you have 3 images, each 16x16 = 256 pixels
-example_data = np.random.randint(0, 256, size=(3, 256), dtype=np.uint8)
-import numpy as np
-
-    # Another pattern: an 'X'
-images = np.array([[255, 0, 0, 0, 0, 0, 0, 255,0, 255, 0, 0, 0, 0, 255, 0,0, 0, 255, 0, 0, 255, 0, 0,0, 0, 0, 255, 255, 0, 0, 0,0, 0, 0, 255, 255, 0, 0, 0,0, 0, 255, 0, 0, 255, 0, 0,0, 255, 0, 0, 0, 0, 255, 0,255, 0, 0, 0, 0, 0, 0, 255],[0, 0, 255, 255, 255, 255, 0, 0,0, 255, 0, 0, 0, 0, 255, 0,255, 0, 255, 0, 0, 255, 0, 255,255, 0, 0, 0, 0, 0, 0, 255,255, 0, 255, 0, 0, 255, 0, 255,255, 0, 0, 0, 0, 0, 0, 255,0, 255, 0, 255, 255, 0, 255, 0,0, 0, 255, 255, 255, 255, 0, 0]])
-
-
-display_images_from_rows(images)
