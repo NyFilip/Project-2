@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 def mnist(filePath = 'Numbers.txt'):
     imagesList = []
@@ -70,5 +70,17 @@ def catdog(filePath = 'catdogdata.txt'):
     
     
     return full, sLabels, sImagesMatrix, sImagesList
+
+def visCatDog(cdMatrix):
+    fig, axs = plt.subplots(4,4)
+    for i in range(16):
+        axs[int(np.floor((i)/4)),(i)%4].matshow(cdMatrix[np.random.randint(0, high=198)])
+    plt.show()
+
+def visMnist(mMatrix):
+    fig, axs = plt.subplots(4,4)
+    for i in range(16):
+        axs[int(np.floor((i)/4)),(i)%4].matshow(mMatrix[np.random.randint(0, high=2000)])
+    plt.show()
 
 
