@@ -7,7 +7,7 @@ def FeedFoorward(data,classiferFunction,errorThreshold,maxNumberOfFeatures):
     maxLoops=min(maxNumberOfFeatures,data.shape[1]-1)
     
     dimensions=np.arange(1,data.shape[1])
-    
+
     bestCVerror=100
     iterations=1
     
@@ -99,16 +99,161 @@ def Accuracy(predictedLabels,testSetLabels):
             correct += 1
     accuracy = correct / len(testSetLabels) * 100
     return accuracy
+#random forest: generatenode->generatetree->generateforest->
+#need gini stability too
+def GiniImpurity(partitionLabels):
+
+    #1-sum of porportion of labels belonging to each class
+    uniqueLabels,counts= np.unique(partitionLabels,return_counts=True)
+    gini=1-np.sum(counts**2/np.sum(counts))
+    return gini
+def GenerateNode(mFeatures,data):
+
+    bestFeature=0
+    bestThreshold=0
+    lowestGini=100
+    numberOfSamples=data.shape[1]
+    isLeaf=False
+    for feature in mFeatures:
+        sortedByFeature=data[data[:, feature].argsort()]
+        for threshold in range(1,numberOfSamples-1):
+            left,right=np.split(sortedByFeature,threshold,axis=1)
+            giniLeft=GiniImpurity(left)
+            giniRight=GiniImpurity(right)
+
+            if giniLeft==1 or giniRight==1:
+                bestThreshold=sortedByFeature[threshold,feature]
+                bestFeature=feature
+                isLeaf=True
+                return bestFeature, bestThreshold, isLeaf
+
+
+            giniTotal=left.shape[1]/numberOfSamples*giniLeft+right.shape[1]/numberOfSamples*giniRight
+
+            if giniTotal <lowestGini:
+                bestFeature=feature
+                lowestGini=giniTotal
+                bestThreshold=sortedByFeature[threshold,feature]
+
+    return bestFeature,bestThreshold,isLeaf
+
+def SoftThreshold(rho,lam):
+    if rho < -lam:
+        return rho + lam
+    elif rho > lam:
+        return rho - lam
+    else:
+        return 0.0
+
+def LassoCoordinateDescentFast(images,regularizationParam,maxIterations=10000,tolerance=1e-4):
+    X=images[:,1:]
+    
+    #centering X
+    
+    y=images[:,0]
+    X=X-np.mean(X,axis=0)
+    y=y-np.mean(y)
+    # print(X.shape,y.shape)
+    features=X.shape[1]
+    numbOfImages=X.shape[0]
+    
+    beta=np.zeros(features)
+    residual=y.copy()
+    XCollumnNorms=np.sum(X**2,axis=0)
+    for iteration in range(maxIterations):
+        print("current iteration: ",iteration)
+        oldBeta=beta.copy()
+        for feature in range(features):
+            # print("current feature: ", feature)
+            
+            rho=np.dot(X[:,feature].T,residual)+beta[feature]*XCollumnNorms[feature]
+            raw=SoftThreshold(rho,regularizationParam)
+            newBeta=raw/XCollumnNorms[feature]
+
+            delta=newBeta-beta[feature]
+
+            residual=residual-delta*X[:,feature]
+
+            beta[feature]=newBeta
+        
+        if np.linalg.norm(beta-oldBeta,ord=1)<tolerance:
+            break
+    return beta
+
+
+# def lassoCoordinateDescentFast(images, lam, max_iter=1000, tol=1e-4):
+#     X=images[:,1:]
+    
+#     y=images[:,0]
+#     n, p = X.shape
+#     beta = np.zeros(p)
+#     residual = y.copy()  # 
+
+#     X_squared_norms = np.sum(X ** 2, axis=0)  
+
+#     for iteration in range(max_iter):
+#         beta_old = beta.copy()
+
+#         for j in range(p):
+#             X_j = X[:, j]
+#             rho = X_j @ residual + beta[j] * X_squared_norms[j]  # Add back j-th contribution
+
+#             # Soft thresholding
+#             new_beta_j = SoftThreshold(rho / X_squared_norms[j], lam)
+
+#             # Update residual incrementally
+#             delta = new_beta_j - beta[j]
+#             residual = residual- delta * X_j
+
+#             # Update coefficient
+#             beta[j] = new_beta_j
+
+#         if np.linalg.norm(beta - beta_old, ord=1) < tol:
+#             break
+
+#     return beta
+
+    
+
 
 
 mnistDigits= dataSet.mnist('numbers.txt')
 numbers=mnistDigits[0]
-print(numbers)
-catsAndDogs = np.loadtxt('catdogdata.txt')
+# print(numbers)
+catsAndDogs = dataSet.catdog('catdogdata.txt')
+animals=catsAndDogs[0]
+
+# from sklearn.linear_model import Lasso
+# from sklearn.datasets import make_regression
+
+# X, y = make_regression(n_samples=100, n_features=20, noise=0.1)
+# model = Lasso(alpha=0.1)  # alpha is λ
+# model.fit(X, y)
+
+# print(model.coef_)
+# print(animals)
 # numbers=np.loadtxt('Numbers.txt')
 
 # print(catsAndDogs.shape,numbers.shape)
 # print(catsAndDogs,numbers)
 # print(catsAndDogs[0,1:])
 # nilsFunction.display_images_from_rows(catsAndDogs[[98,99],1:])
-selectedFeatures=FeedFoorward(numbers,KNearestNeighboors,0.001,10)
+# selectedFeatures=FeedFoorward(numbers,KNearestNeighboors,0.001,10)
+images=animals
+X=images[:,1:]
+y=images[:,0]
+
+from sklearn.linear_model import Lasso
+
+# model = Lasso(alpha=0.1, fit_intercept=False, max_iter=10000)
+# model.fit(X, y)
+# beta = model.coef_
+
+predictedLabels= KNearestNeighboors(animals[:150,:],animals[150:,:],k=4)
+acc=Accuracy(predictedLabels,animals[150:,0])
+
+print(acc)
+# print(animals[:,1000:3000])
+beta=LassoCoordinateDescentFast(animals,20)
+nonZeroIndices=np.nonzero(beta)
+print(beta[nonZeroIndices].shape,nonZeroIndices)
