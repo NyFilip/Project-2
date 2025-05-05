@@ -22,7 +22,7 @@ def FeedFoorward(data,classiferFunction,errorThreshold,maxNumberOfFeatures):
             testfeatures=selectedFeatures+[feature]
             # print("testfeatures",data[:,testfeatures])
             CVerror=KFoldCrossValidation(data[:,testfeatures],classifierFunction=classiferFunction,numberOfSplits=5)
-            print("error of feature ",feature," was ",CVerror)
+            # print("error of feature ",feature," was ",CVerror)
             if CVerror < bestCVerror:
 
                 bestfeature=feature
@@ -249,11 +249,19 @@ from sklearn.linear_model import Lasso
 # model.fit(X, y)
 # beta = model.coef_
 
-predictedLabels= KNearestNeighboors(animals[:150,:],animals[150:,:],k=4)
-acc=Accuracy(predictedLabels,animals[150:,0])
+# predictedLabels= KNearestNeighboors(animals[:150,:],animals[150:,:],k=4)
+# acc=Accuracy(predictedLabels,animals[150:,0])
 
-print(acc)
-# print(animals[:,1000:3000])
-beta=LassoCoordinateDescentFast(animals,20)
-nonZeroIndices=np.nonzero(beta)
-print(beta[nonZeroIndices].shape,nonZeroIndices)
+# print(acc)
+# # print(animals[:,1000:3000])
+# beta=LassoCoordinateDescentFast(animals,20)
+# nonZeroIndices=np.nonzero(beta)
+# print(beta[nonZeroIndices].shape,nonZeroIndices)
+testlabels=nilsFunction.MulticlassLogisticClassifier(animals[:150],animals[150:])
+print(testlabels)
+selectedfeatures=FeedFoorward(animals,nilsFunction.MulticlassLogisticClassifier(animals[:150,:],animals[150:,:]),1e-4,10)
+print(selectedfeatures)
+
+# predictedLabels= KNearestNeighboors(animals[:150,[0,1487, 2605, 2473, 2152, 3089]],animals[150:,[0, 1487, 2605, 2473, 2152,3089]])
+# acc=Accuracy(predictedLabels,animals[150:,0])
+print(Accuracy)
