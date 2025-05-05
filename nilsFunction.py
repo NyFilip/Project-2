@@ -100,3 +100,4 @@ def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
     y_pred_labels = [index_to_label[idx] for idx in y_pred_indices]
 
     return y_pred_labels
+    
