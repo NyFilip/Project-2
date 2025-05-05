@@ -1,5 +1,3 @@
-import numpy as np
-
 def KNearestNeighboors(trainingSet, testSet, k, norm=2):
     testSetLabels = []
 
@@ -23,7 +21,7 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 def softmax(z):
-    exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))  # for numerical stability
+    exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))
     return exp_z / np.sum(exp_z, axis=1, keepdims=True)
 
 
