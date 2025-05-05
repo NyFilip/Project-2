@@ -68,10 +68,10 @@ def catdog(filePath = 'catdogdata.txt'):
     
     
     return full, sLabels, sImagesMatrix, sImagesList
-#full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
-full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
+full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
+#full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
 print(full.shape)
-def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
+'''def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
     import numpy as np
 
     def softmax(Z):
@@ -145,9 +145,60 @@ def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
 
     return y_pred_labels
 
-
+'''
 #train_set = full[:100]
 #test_set = full[100:120]
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+
+def MulticlassLogisticClassifier(trainingSet, testSet, scale=True, C=1.0, penalty=None, solver='lbfgs', max_iter=1000):
+    """
+    Multiclass logistic classifier using scikit-learn.
+    
+    Parameters:
+        trainingSet : np.ndarray, shape (n_samples_train, n_features+1)
+            First column is label, rest are features.
+        testSet : np.ndarray, shape (n_samples_test, n_features+1)
+            First column is label, rest are features.
+        scale : bool
+            Whether to standardize the input features.
+        C : float
+            Inverse regularization strength.
+        penalty : str
+            Regularization type: 'l2', 'l1', or 'none'.
+        solver : str
+            Optimization algorithm. 'lbfgs' or 'saga' for L1.
+        max_iter : int
+            Max iterations for solver.
+    
+    Returns:
+        y_pred : list of predicted labels
+    """
+    X_train = trainingSet[:, 1:]
+    y_train = trainingSet[:, 0].astype(int)
+
+    X_test = testSet[:, 1:]
+    y_test = testSet[:, 0].astype(int)
+
+    # Normalize if desired
+    if scale:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+    # Train model
+    clf = LogisticRegression(
+        multi_class='multinomial',
+        solver=solver,
+        penalty=penalty,
+        C=C,
+        max_iter=max_iter
+    )
+    clf.fit(X_train, y_train)
+
+    # Predict
+    y_pred = clf.predict(X_test)
+    return y_pred.tolist()
 
 #logistic_preds = MulticlassLogisticClassifier(train_set, test_set)
 def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
@@ -179,8 +230,8 @@ def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
 
 
 # Example usage:
-test_set = full[1900:1999]
-training_set = full[:1900]
+test_set = full[150:197]
+training_set = full[:150]
 predicted = MulticlassLogisticClassifier(training_set, test_set)
 
 def compute_error(y_true, y_pred):
