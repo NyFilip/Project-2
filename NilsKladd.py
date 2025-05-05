@@ -99,7 +99,7 @@ def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
     Y = one_hot(y_indexed, num_classes)
 
     # --- Step 4: Initialize parameters ---
-    theta = np.random.randn(num_classes, p_aug) * 0.01
+    theta = np.random.randn(num_classes, p_aug) * 0.005
     theta[:, 0] = 0.0  # intercepts
 
     # --- Step 5: IRLS training loop ---
