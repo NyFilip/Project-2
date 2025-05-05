@@ -71,8 +71,12 @@ def catdog(filePath = 'catdogdata.txt'):
 #full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
 full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
 print(full.shape)
-def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
+def MulticlassLogisticClassifier(trainingSet, testSet, 
+                                 max_iter=2000, tol=1e-7, 
+                                 verbose=False, scale=True, return_theta=False):
     import numpy as np
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.metrics import accuracy_score, confusion_matrix
 
     def softmax(Z):
         eZ = np.exp(Z - np.max(Z, axis=1, keepdims=True))
@@ -81,28 +85,48 @@ def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
     def one_hot(y, K):
         return np.eye(K)[y]
 
-    # --- Step 1: Extract features and labels ---
+    # --- Extract features and labels ---
     X_train = trainingSet[:, 1:]
     y_train = trainingSet[:, 0].astype(int)
 
-    # --- Step 2: Map original labels to 0...K-1 indices ---
-    unique_labels = np.unique(y_train)
+    X_test = testSet[:, 1:]
+    y_test = testSet[:, 0].astype(int)
+
+    # --- Normalize if enabled ---
+    if scale:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+    # --- Label indexing ---
+    unique_labels = np.unique(np.concatenate([y_train, y_test]))
     label_to_index = {label: idx for idx, label in enumerate(unique_labels)}
     index_to_label = {idx: label for label, idx in label_to_index.items()}
-    y_indexed = np.array([label_to_index[y] for y in y_train])
+
+    y_train_idx = np.array([label_to_index[y] for y in y_train])
+    y_test_idx = np.array([label_to_index[y] for y in y_test])
     num_classes = len(unique_labels)
 
-    # --- Step 3: Prepare design matrix ---
+    # --- Design matrix ---
     N, p = X_train.shape
     p_aug = p + 1
     X_aug = np.hstack([np.ones((N, 1)), X_train])
-    Y = one_hot(y_indexed, num_classes)
+    Y = one_hot(y_train_idx, num_classes)
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+    # --- Init theta ---
+    theta = np.random.randn(num_classes, p_aug) * 0.01
+    theta[:, 0] = 0.0
+=======
+>>>>>>> Stashed changes
     # --- Step 4: Initialize parameters ---
     theta = np.random.randn(num_classes, p_aug) * 0.005
     theta[:, 0] = 0.0  # intercepts
+>>>>>>> b7912f277a0668908acd857a15970d3976055329
 
-    # --- Step 5: IRLS training loop ---
+    # --- IRLS loop ---
     for iteration in range(max_iter):
         Z = X_aug @ theta.T
         P = softmax(Z)
@@ -131,19 +155,32 @@ def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
         theta_new = theta_new.reshape(num_classes, p_aug)
 
         if np.linalg.norm(theta_new - theta) < tol:
+            if verbose:
+                print(f"Converged at iteration {iteration}")
             break
 
         theta = theta_new
 
-    # --- Step 6: Predict on test set ---
-    X_test = testSet[:, 1:]
+    # --- Prediction ---
     X_test_aug = np.hstack([np.ones((X_test.shape[0], 1)), X_test])
     Z_test = X_test_aug @ theta.T
     P_test = softmax(Z_test)
-    y_pred_indices = np.argmax(P_test, axis=1)
-    y_pred_labels = [index_to_label[idx] for idx in y_pred_indices]
+    y_pred_idx = np.argmax(P_test, axis=1)
+    y_pred_labels = [index_to_label[idx] for idx in y_pred_idx]
 
+    # --- Evaluation (if verbose) ---
+    if verbose:
+        acc = accuracy_score(y_test, y_pred_labels)
+        print(f"\nTest accuracy: {acc:.4f}")
+
+        cm = confusion_matrix(y_test, y_pred_labels, labels=unique_labels)
+        print("\nConfusion Matrix (rows = true, cols = predicted):")
+        print(cm)
+
+    if return_theta:
+        return y_pred_labels, theta
     return y_pred_labels
+
 
 
 #train_set = full[:100]
