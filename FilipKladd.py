@@ -101,7 +101,7 @@ def Accuracy(predictedLabels,testSetLabels):
     return accuracy
 
 
-mnistDigits= dataSet.minist('numbers.txt')
+mnistDigits= dataSet.mnist('numbers.txt')
 numbers=mnistDigits[0]
 print(numbers)
 catsAndDogs = np.loadtxt('catdogdata.txt')
