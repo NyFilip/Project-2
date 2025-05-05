@@ -68,8 +68,9 @@ def catdog(filePath = 'catdogdata.txt'):
     
     
     return full, sLabels, sImagesMatrix, sImagesList
-full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
-print(full)
+#full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
+full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
+print(full.shape)
 def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
     import numpy as np
 
@@ -149,13 +150,6 @@ def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
 #test_set = full[100:120]
 
 #logistic_preds = MulticlassLogisticClassifier(train_set, test_set)
-
-
-import matplotlib.pyplot as plt
-
-import matplotlib.pyplot as plt
-import numpy as np
-
 def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
     """
     Display test images in a grid with predicted labels.
@@ -185,8 +179,8 @@ def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
 
 
 # Example usage:
-test_set = full[150:197]
-training_set = full[:150]
+test_set = full[1900:1999]
+training_set = full[:1900]
 predicted = MulticlassLogisticClassifier(training_set, test_set)
 
 def compute_error(y_true, y_pred):
@@ -197,7 +191,7 @@ y_true = test_set[:, 0].astype(int)          # true labels from first column
 #y_pred = MulticlassLogisticClassifier(full[:100], test_set)  # predicted labels
 
 test_error = compute_error(y_true, predicted)
-print(f"Test error rate: {test_error:.4f}")
+print(f"accuracy: {1-test_error:.4f}")
 
 
 show_predictions(test_set, predicted)
