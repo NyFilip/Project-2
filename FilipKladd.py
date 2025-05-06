@@ -293,7 +293,7 @@ def FTestFeatureSelection(data, n_features):
 
 # Perform F-test feature selection
 n_features = 1000  # Number of top features to select
-filtered_data = FTestFeatureSelection(animals, n_features)
+filtered_data = FTestFeatureSelection(numbers, n_features)
 print("Filtered data shape:", filtered_data.shape)
 
 # Split the filtered data into training and testing sets
