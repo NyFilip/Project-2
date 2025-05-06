@@ -82,5 +82,3 @@ def visMnist(mMatrix):
     for i in range(16):
         axs[int(np.floor((i)/4)),(i)%4].matshow(mMatrix[np.random.randint(0, high=2000)])
     plt.show()
-
-
