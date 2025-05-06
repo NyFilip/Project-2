@@ -1,11 +1,22 @@
 Shit to do 
 funktioner:
-1.  för att visa bilderna
-2.  med all data
-3.  för 3 olika classifiers
-4.  för 2 olika feature selections
+1.  för att visa bilderna Klart!
+2.  med all data klart!
+3.  för 3 olika classifiers Klart!
+4.  för 2 olika feature selections klart!
 
 Main: 
 Wrapper method (lasso?)
 CV for when to stop
 embedding? 
+Klart!
+
+Next up! 
+
+Testa: 
+ftest -> feedforward + classifiers
+ftest -> classifiers 
+feedforward + classifiers (om det hinns med)
+
+heat map of important features för varje classifier + filter/wrapper combo
+

@@ -1,6 +1,7 @@
 import numpy as np
-import Classifiers as clf
+import rebeckaFunction as rF
 import dataSet as ds
+from filipFunction import Accuracy
 
 def preprocess_mnist():
     # Load the MNIST data
@@ -32,33 +33,21 @@ def preprocess_catdog():
     
     return cats_dogs_train, cats_dogs_train_labels, cats_dogs_test, cats_dogs_test_labels
 
-def run_logistic_regression():
+def run_logistic_regression(cats_dogs_train, cats_dogs_test, cats_dogs_test_labels,
+                             mnist_train, mnist_test, mnist_test_labels):
     # For Cats vs Dogs (binary classification)
-    testSetLabels_binary = clf.LogisticRegressionBinary(cats_dogs_train, cats_dogs_test)
-
-    # For MNIST (multiclass classification)
-    testSetLabels_multiclass = clf.LogisticRegressionMulticlass(mnist_train, mnist_test)
-
+    predicted_binary = rF.LogisticRegressionBinary_sklearn(cats_dogs_train, cats_dogs_test)
+    acc_binary = Accuracy(predicted_binary, cats_dogs_test_labels)
     print("Cats vs Dogs Test Labels (Logistic Regression):")
-    print(testSetLabels_binary)
+    print(predicted_binary)
+    print("Cats vs Dogs Accuracy (Logistic Regression): {:.2f}%".format(acc_binary))
 
-    print("\nMNIST Test Labels (Logistic Regression):")
-    print(testSetLabels_multiclass)
-
-def run_knn(k=3):
-    # For Cats vs Dogs (binary classification)
-    knn_labels_binary = clf.KNearestNeighboors(cats_dogs_train, cats_dogs_test, k)
-    
     # For MNIST (multiclass classification)
-    knn_labels_multiclass = clf.KNearestNeighboors(mnist_train, mnist_test, k)
-
-    print(f"Cats vs Dogs Test Labels (KNN with k={k}):")
-    print(np.unique(knn_labels_binary))
-
-    print("\nMNIST Test Labels (KNN):")
-    print(np.unique(knn_labels_multiclass))
-
-
+    predicted_multiclass = rF.LogisticRegressionMulticlass_sklearn(mnist_train, mnist_test)
+    acc_multiclass = Accuracy(predicted_multiclass, mnist_test_labels)
+    print("\nMNIST Test Labels (Logistic Regression):")
+    print(predicted_multiclass)
+    print("MNIST Accuracy (Logistic Regression): {:.2f}%".format(acc_multiclass))
 
 if __name__ == '__main__':
     # Preprocess data
@@ -66,7 +55,4 @@ if __name__ == '__main__':
     mnist_train, mnist_train_labels, mnist_test, mnist_test_labels = preprocess_mnist()
 
     # Run Logistic Regression Classifiers
-    run_logistic_regression()
-
-    # Run K-Nearest Neighbors Classifier with k=3 (you can change k as needed)
-    run_knn(k=3)
+    run_logistic_regression(cats_dogs_train, cats_dogs_test, cats_dogs_test_labels, mnist_train, mnist_test, mnist_test_labels)
