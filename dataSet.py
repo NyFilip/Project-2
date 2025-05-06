@@ -55,7 +55,7 @@ def catdog(filePath = 'catdogdata.txt'):
             full.append(fullTemp)
             i += 1
     full = np.array(full)
-
+    np.random.seed(10)
     np.random.shuffle(full)
 
     for line in full:

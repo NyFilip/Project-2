@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.feature_selection import f_classif
 
 def FeedForward(data,classiferFunction,errorThreshold,maxNumberOfFeatures):
     
@@ -80,4 +81,26 @@ def Accuracy(predictedLabels,testSetLabels):
     accuracy = correct / len(testSetLabels) * 100
     return accuracy
 
+def FTestFeatureSelection(data, n_features):
+    """
+    Perform F-test feature selection and return filtered dataset with labels.
+    
+    Parameters:
+        data (numpy.ndarray): Dataset with labels in the first column.
+        n_features (int): Number of top features to select based on F-statistic.
+    
+    Returns:
+        filtered_data (numpy.ndarray): Dataset with labels and selected features.
+    """
+    images = data[:, 1:]  # Features
+    labels = data[:, 0]   # Labels
 
+    f_values, _ = f_classif(images, labels)
+    # Get indices of the top n features based on F-statistic
+    top_features = np.argsort(f_values)[-n_features:]  # Select top n features
+    top_features = np.sort(top_features)  # Sort indices to maintain column order
+
+    # Filter the features and add labels back as the first column
+    filtered_features = images[:, top_features]
+    filtered_data = np.column_stack((labels, filtered_features))
+    return filtered_data
