@@ -19,7 +19,7 @@ def LogisticRegressionMulticlass_sklearn(trainingSet, testSet):
 
     X_test = testSet[:, 1:]
 
-    clf = LogisticRegression(solver='saga', multi_class='multinomial', max_iter=1000)
+    clf = LogisticRegression(solver='saga', max_iter=5000)
     clf.fit(X_train, y_train)
 
     testSetLabels = clf.predict(X_test)
