@@ -52,9 +52,9 @@ def KFoldCrossValidation(data,classifierFunction,numberOfSplits):
         accuracyList.append(accuracy)
     meanAccuracy=np.mean(accuracyList)
     
-    return 100-meanAccuracy
+    return meanAccuracy
 
-def KNearestNeighboors(trainingSet, testSet, k, norm=2):
+def KNearestNeighboors(trainingSet, testSet, k=4, norm=2):
     testSetLabels = []
 
     for index,image in enumerate(testSet):

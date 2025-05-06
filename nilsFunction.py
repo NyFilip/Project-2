@@ -106,7 +106,7 @@ def QDAClassifier(trainingSet, testSet, scale=True):
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
 
-    clf = QuadraticDiscriminantAnalysis()
+    clf = QuadraticDiscriminantAnalysis(reg_param=1)
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_test)
