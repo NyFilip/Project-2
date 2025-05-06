@@ -245,6 +245,32 @@ y=images[:,0]
 
 from sklearn.linear_model import Lasso
 
+from sklearn.feature_selection import f_classif
+
+def FTestFeatureSelection(data, n_features):
+    """
+    Perform F-test feature selection and return filtered dataset with labels.
+    
+    Parameters:
+        data (numpy.ndarray): Dataset with labels in the first column.
+        n_features (int): Number of top features to select based on F-statistic.
+    
+    Returns:
+        filtered_data (numpy.ndarray): Dataset with labels and selected features.
+    """
+    images = data[:, 1:]  # Features
+    labels = data[:, 0]   # Labels
+
+    f_values, _ = f_classif(images, labels)
+    # Get indices of the top n features based on F-statistic
+    top_features = np.argsort(f_values)[-n_features:]  # Select top n features
+    top_features = np.sort(top_features)  # Sort indices to maintain column order
+
+    # Filter the features and add labels back as the first column
+    filtered_features = images[:, top_features]
+    filtered_data = np.column_stack((labels, filtered_features))
+    return filtered_data
+
 # model = Lasso(alpha=0.1, fit_intercept=False, max_iter=10000)
 # model.fit(X, y)
 # beta = model.coef_
@@ -257,11 +283,27 @@ from sklearn.linear_model import Lasso
 # beta=LassoCoordinateDescentFast(animals,20)
 # nonZeroIndices=np.nonzero(beta)
 # print(beta[nonZeroIndices].shape,nonZeroIndices)
-testlabels=nilsFunction.MulticlassLogisticClassifier(animals[:150],animals[150:])
-print(testlabels)
-selectedfeatures=FeedFoorward(animals,nilsFunction.MulticlassLogisticClassifier(animals[:150,:],animals[150:,:]),1e-4,10)
-print(selectedfeatures)
+# testlabels=nilsFunction.MulticlassLogisticClassifier(animals[:150],animals[150:],)
+# print(testlabels)
+# selectedfeatures=FeedFoorward(animals,nilsFunction.MulticlassLogisticClassifier(animals[:150,:],animals[150:,:]),1e-4,10)
+# print(selectedfeatures)
 
 # predictedLabels= KNearestNeighboors(animals[:150,[0,1487, 2605, 2473, 2152, 3089]],animals[150:,[0, 1487, 2605, 2473, 2152,3089]])
-# acc=Accuracy(predictedLabels,animals[150:,0])
-print(Accuracy)
+
+
+# Perform F-test feature selection
+n_features = 1000  # Number of top features to select
+filtered_data = FTestFeatureSelection(animals, n_features)
+print("Filtered data shape:", filtered_data.shape)
+
+# Split the filtered data into training and testing sets
+training_data = filtered_data[:150]
+testing_data = filtered_data[150:]
+
+# Use the filtered features in your classifier
+predictedLabels = KNearestNeighboors(training_data, testing_data)
+
+# Calculate accuracy
+acc = Accuracy(predictedLabels, testing_data[:, 0])
+print("Accuracy:", acc)
+
