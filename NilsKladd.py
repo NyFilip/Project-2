@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+'''
 def mnist(filePath = 'Numbers.txt'):
     imagesList = []
     imagesMatrix = []
@@ -72,73 +72,6 @@ def catdog(filePath = 'catdogdata.txt'):
 full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
 print(full.shape)
 
-#train_set = full[:100]
-#test_set = full[100:120]
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-
-def QDAClassifier(trainingSet, testSet, scale=True):
-    """
-    QDA classifier using scikit-learn.
-    
-    Parameters:
-        trainingSet: np.ndarray
-            First column is label, rest are features.
-        testSet: np.ndarray
-            First column is label, rest are features.
-        scale: bool
-            Whether to standardize input features.
-
-    Returns:
-        y_pred: list of predicted labels
-    """
-    X_train = trainingSet[:, 1:]
-    y_train = trainingSet[:, 0].astype(int)
-
-    X_test = testSet[:, 1:]
-    y_test = testSet[:, 0].astype(int)
-
-    # Optional feature scaling
-    if scale:
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-
-    clf = QuadraticDiscriminantAnalysis()
-    clf.fit(X_train, y_train)
-
-    y_pred = clf.predict(X_test)
-    return y_pred.tolist()
-
-
-    X_train = trainingSet[:, 1:]
-    y_train = trainingSet[:, 0].astype(int)
-
-    X_test = testSet[:, 1:]
-    y_test = testSet[:, 0].astype(int)
-
-    # Normalize if desired
-    if scale:
-        scaler = StandardScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.transform(X_test)
-
-    # Train model
-    clf = LogisticRegression(
-        multi_class='multinomial',
-        solver=solver,
-        penalty=penalty,
-        C=C,
-        max_iter=max_iter
-    )
-    clf.fit(X_train, y_train)
-
-    # Predict
-    y_pred = clf.predict(X_test)
-    return y_pred.tolist()
-
-#logistic_preds = MulticlassLogisticClassifier(train_set, test_set)
 def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
     """
     Display test images in a grid with predicted labels.
@@ -170,7 +103,7 @@ def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
 # Example usage:
 test_set = full[1500:1600]
 training_set = full[:1500]
-predicted = QDAClassifier(training_set, test_set)
+predicted = Classifier(training_set, test_set)
 
 def compute_error(y_true, y_pred):
     return np.mean(np.array(y_true) != np.array(y_pred))
@@ -184,3 +117,21 @@ print(f"accuracy: {1-test_error:.4f}")
 
 
 show_predictions(test_set, predicted)
+
+
+'''
+
+def spaced_steps(n_features, n_steps=40):
+    # Use log-space for denser values early on, spread to full range
+    steps = np.unique(
+        np.round(np.logspace(0, np.log10(n_features), n_steps)).astype(int)
+    )
+    if steps[-1] != n_features:
+        steps = np.append(steps, n_features)
+    return steps
+
+steps_256 = spaced_steps(256)
+steps_4096 = spaced_steps(4096)
+
+print("Steps for 256 features:", steps_256)
+print("Steps for 4096 features:", steps_4096)

@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import math
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
 def display_images_from_rows(array, cmap='gray'):
     """
     Display each row of a 2D numpy array as a square image.
@@ -76,3 +78,38 @@ def MulticlassLogisticClassifier(trainingSet, testSet, scale=True, C=1.0, penalt
     # Predict
     y_pred = clf.predict(X_test)
     return y_pred.tolist()
+
+def QDAClassifier(trainingSet, testSet, scale=True):
+    """
+    QDA classifier using scikit-learn.
+    
+    Parameters:
+        trainingSet: np.ndarray
+            First column is label, rest are features.
+        testSet: np.ndarray
+            First column is label, rest are features.
+        scale: bool
+            Whether to standardize input features.
+
+    Returns:
+        y_pred: list of predicted labels
+    """
+    X_train = trainingSet[:, 1:]
+    y_train = trainingSet[:, 0].astype(int)
+
+    X_test = testSet[:, 1:]
+    y_test = testSet[:, 0].astype(int)
+
+    # Optional feature scaling
+    if scale:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+    clf = QuadraticDiscriminantAnalysis()
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict(X_test)
+    return y_pred.tolist()
+
+
