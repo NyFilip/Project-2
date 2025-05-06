@@ -68,112 +68,50 @@ def catdog(filePath = 'catdogdata.txt'):
     
     
     return full, sLabels, sImagesMatrix, sImagesList
-full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
-#full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
+#full, labels, imagesMatrix, imagesList = catdog('catdogdata.txt')
+full, labels, imagesMatrix, imagesList = mnist('Numbers.txt')
 print(full.shape)
-'''def MulticlassLogisticClassifier(trainingSet, testSet, max_iter=2000, tol=1e-7):
-    import numpy as np
 
-    def softmax(Z):
-        eZ = np.exp(Z - np.max(Z, axis=1, keepdims=True))
-        return eZ / np.sum(eZ, axis=1, keepdims=True)
-
-    def one_hot(y, K):
-        return np.eye(K)[y]
-
-    # --- Step 1: Extract features and labels ---
-    X_train = trainingSet[:, 1:]
-    y_train = trainingSet[:, 0].astype(int)
-
-    # --- Step 2: Map original labels to 0...K-1 indices ---
-    unique_labels = np.unique(y_train)
-    label_to_index = {label: idx for idx, label in enumerate(unique_labels)}
-    index_to_label = {idx: label for label, idx in label_to_index.items()}
-    y_indexed = np.array([label_to_index[y] for y in y_train])
-    num_classes = len(unique_labels)
-
-    # --- Step 3: Prepare design matrix ---
-    N, p = X_train.shape
-    p_aug = p + 1
-    X_aug = np.hstack([np.ones((N, 1)), X_train])
-    Y = one_hot(y_indexed, num_classes)
-
-    # --- Step 4: Initialize parameters ---
-    theta = np.random.randn(num_classes, p_aug) * 0.005
-    theta[:, 0] = 0.0  # intercepts
-
-    # --- Step 5: IRLS training loop ---
-    for iteration in range(max_iter):
-        Z = X_aug @ theta.T
-        P = softmax(Z)
-        grad = (Y - P).T @ X_aug
-
-        H = np.zeros((num_classes * p_aug, num_classes * p_aug))
-        for i in range(N):
-            x_i = X_aug[i:i+1, :]
-            p_i = P[i, :]
-            for k in range(num_classes):
-                for l in range(num_classes):
-                    coeff = -p_i[k] * ((k == l) - p_i[l])
-                    H_k_l = coeff * (x_i.T @ x_i)
-                    row_start = k * p_aug
-                    col_start = l * p_aug
-                    H[row_start:row_start + p_aug, col_start:col_start + p_aug] += H_k_l
-
-        grad_flat = grad.flatten()
-        try:
-            delta = np.linalg.solve(H, grad_flat)
-        except np.linalg.LinAlgError:
-            print("Hessian not invertible. Stopping early.")
-            break
-
-        theta_new = theta.flatten() + delta
-        theta_new = theta_new.reshape(num_classes, p_aug)
-
-        if np.linalg.norm(theta_new - theta) < tol:
-            break
-
-        theta = theta_new
-
-    # --- Step 6: Predict on test set ---
-    X_test = testSet[:, 1:]
-    X_test_aug = np.hstack([np.ones((X_test.shape[0], 1)), X_test])
-    Z_test = X_test_aug @ theta.T
-    P_test = softmax(Z_test)
-    y_pred_indices = np.argmax(P_test, axis=1)
-    y_pred_labels = [index_to_label[idx] for idx in y_pred_indices]
-
-    return y_pred_labels
-
-'''
 #train_set = full[:100]
 #test_set = full[100:120]
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
-def MulticlassLogisticClassifier(trainingSet, testSet, scale=True, C=1.0, penalty=None, solver='lbfgs', max_iter=1000):
+def QDAClassifier(trainingSet, testSet, scale=True):
     """
-    Multiclass logistic classifier using scikit-learn.
+    QDA classifier using scikit-learn.
     
     Parameters:
-        trainingSet : np.ndarray, shape (n_samples_train, n_features+1)
+        trainingSet: np.ndarray
             First column is label, rest are features.
-        testSet : np.ndarray, shape (n_samples_test, n_features+1)
+        testSet: np.ndarray
             First column is label, rest are features.
-        scale : bool
-            Whether to standardize the input features.
-        C : float
-            Inverse regularization strength.
-        penalty : str
-            Regularization type: 'l2', 'l1', or 'none'.
-        solver : str
-            Optimization algorithm. 'lbfgs' or 'saga' for L1.
-        max_iter : int
-            Max iterations for solver.
-    
+        scale: bool
+            Whether to standardize input features.
+
     Returns:
-        y_pred : list of predicted labels
+        y_pred: list of predicted labels
     """
+    X_train = trainingSet[:, 1:]
+    y_train = trainingSet[:, 0].astype(int)
+
+    X_test = testSet[:, 1:]
+    y_test = testSet[:, 0].astype(int)
+
+    # Optional feature scaling
+    if scale:
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
+
+    clf = QuadraticDiscriminantAnalysis()
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict(X_test)
+    return y_pred.tolist()
+
+
     X_train = trainingSet[:, 1:]
     y_train = trainingSet[:, 0].astype(int)
 
@@ -230,9 +168,9 @@ def show_predictions(testSet, predicted_labels, num_rows=10, num_cols=10):
 
 
 # Example usage:
-test_set = full[150:197]
-training_set = full[:150]
-predicted = MulticlassLogisticClassifier(training_set, test_set)
+test_set = full[1500:1600]
+training_set = full[:1500]
+predicted = QDAClassifier(training_set, test_set)
 
 def compute_error(y_true, y_pred):
     return np.mean(np.array(y_true) != np.array(y_pred))
