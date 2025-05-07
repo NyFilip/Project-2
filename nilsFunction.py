@@ -30,7 +30,7 @@ def display_images_from_rows(array, cmap='gray'):
         plt.axis('off')
     plt.show()
 
-def MulticlassLogisticClassifier(trainingSet, testSet, scale=True, C=1.0, penalty=None, solver='lbfgs', max_iter=1000):
+def MulticlassLogisticClassifier(trainingSet, testSet, scale=True, C=1.0, penalty=None, solver='lbfgs', max_iter=5000):
     """
     Multiclass logistic classifier using scikit-learn.
     
@@ -67,7 +67,7 @@ def MulticlassLogisticClassifier(trainingSet, testSet, scale=True, C=1.0, penalt
 
     # Train model
     clf = LogisticRegression(
-        multi_class='multinomial',
+        
         solver=solver,
         penalty=penalty,
         C=C,

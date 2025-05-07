@@ -17,7 +17,7 @@ kfoldCV = filipFunction.KFoldCrossValidation
 classifiers = [
     filipFunction.KNearestNeighboors,
     nilsFunction.QDAClassifier,
-    rebeckaFunction.LogisticRegressionMulticlass_sklearn
+    nilsFunction.MulticlassLogisticClassifier
 ]
 
 # Datasets to evaluate
@@ -80,9 +80,12 @@ def evaluate_with_ftest_and_feed_forward(save_to_file=True):
         number_of_features = 100
         results[dataset_name] = {}
         feature_accuracies_per_dataset[dataset_name] = {}
-
+        print(dataset_name)
         for classifier in classifiers:
+            # print(classifier_name)
+            
             classifier_name = classifier.__name__
+            print(classifier_name)
             results[dataset_name][classifier_name] = []
             feature_accuracies_per_dataset[dataset_name][classifier_name] = []
 
@@ -130,6 +133,40 @@ def evaluate_with_ftest_and_feed_forward(save_to_file=True):
         plt.legend()
         plt.grid(True)
         plt.show()
+def evaluate_with_kfoldcv_only():
+    """
+    Evaluate classifiers using k-fold cross-validation without feature selection and plot the results.
+    """
+    results = {}
+
+    for dataset_name, dataset in datasets.items():
+        results[dataset_name] = {}
+        print(f"Evaluating on {dataset_name} dataset...")
+        
+        for classifier in classifiers:
+            classifier_name = classifier.__name__
+            print(f"Running {classifier_name}...")
+            results[dataset_name][classifier_name] = []
+
+            # Perform k-fold cross-validation
+            accuracy = kfoldCV(data=dataset, classifierFunction=classifier, numberOfSplits=4)
+            results[dataset_name][classifier_name].append(accuracy)
+
+    # Plot the results
+    for dataset_name, dataset_results in results.items():
+        plt.figure(figsize=(10, 6))
+        classifier_names = list(dataset_results.keys())
+        accuracies = [dataset_results[classifier_name][0] for classifier_name in classifier_names]
+
+        plt.bar(classifier_names, accuracies, color='skyblue')
+        plt.title(f"Classifier Performance with k-fold CV on {dataset_name}")
+        plt.xlabel("Classifiers")
+        plt.ylabel("Accuracy")
+        plt.xticks(rotation=45)
+        plt.grid(axis='y')
+        plt.show()
 
 
-evaluate_with_ftest_and_feed_forward()
+
+evaluate_with_kfoldcv_only()
+# evaluate_with_ftest_and_feed_forward()
