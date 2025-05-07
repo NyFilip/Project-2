@@ -1,3 +1,4 @@
+# Code to make confussion matrixes for each classifier for both sets of data, with F-test&FeedForward and without.
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,7 +12,6 @@ import os
 
 # Create folder if it doesn't exist
 os.makedirs('confusion_matrices', exist_ok=True)
-
 
 # Load the datasets
 catsAndDogs = dataSet.catdog()[0]
