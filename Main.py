@@ -16,13 +16,13 @@ feed_forward = filipFunction.custom_feed_forward # Assuming this function exists
 kfoldCV = filipFunction.KFoldCrossValidation
 classifiers = [
     filipFunction.KNearestNeighboors,
-    # nilsFunction.QDAClassifier,
-    # nilsFunction.MulticlassLogisticClassifier
+    nilsFunction.QDAClassifier,
+    nilsFunction.MulticlassLogisticClassifier
 ]
 
 # Datasets to evaluate
 datasets = {
-    # "Cats and Dogs": catsAndDogs,
+    "Cats and Dogs": catsAndDogs,
     "MNIST": mnist
 }
 
@@ -167,4 +167,4 @@ def evaluate_with_kfoldcv_boxplot():
         plt.show()
 
 # evaluate_with_kfoldcv_boxplot()
-evaluate_with_ftest_and_feed_forward()
+evaluate_with_ftest_and_feed_forward(save_to_file=True)
