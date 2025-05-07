@@ -106,10 +106,94 @@ def QDAClassifier(trainingSet, testSet, scale=True):
         X_train = scaler.fit_transform(X_train)
         X_test = scaler.transform(X_test)
 
-    clf = QuadraticDiscriminantAnalysis(reg_param=1)
+    clf = QuadraticDiscriminantAnalysis()
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_test)
     return y_pred.tolist()
 
+def catdog_with_contamination(filePath='catdogdata.txt', contamination_rate=0.0):
+    import numpy as np
+    sLabels = []
+    sImagesMatrix = []
+    sImagesList = []
+    full = []
+    i = 0
 
+    with open(filePath, 'r') as file:
+        for line in file:
+            parts = line.strip().split()
+            index = parts[0].strip()
+            pixels = list(map(int, parts[1:]))
+            fullTemp = list(pixels)
+            fullTemp.insert(0, 0 if i < 99 else 1)
+            full.append(fullTemp)
+            i += 1
+
+    full = np.array(full)
+    np.random.seed(10)
+    np.random.shuffle(full)
+
+    if contamination_rate > 0.0:
+        n_pixels = 64 * 64
+        n_contaminate = int(np.round(contamination_rate * n_pixels))
+        contam_indices = np.random.choice(n_pixels, size=n_contaminate, replace=False)
+
+        # Generate random values between 2 and 255
+        random_values = np.random.randint(2, 256, size=n_contaminate)
+
+        full[:, contam_indices + 1] = random_values
+        # reshape images after contamination
+    for line in full:
+        slabel = line[0]
+        spixels = line[1:]
+        sLabels.append(slabel)
+        sImagesList.append(spixels)
+        sImagesMatrix.append(np.array(spixels).reshape(64, 64))
+
+    sLabels = np.array(sLabels)
+    sImagesList = np.array(sImagesList)
+    sImagesMatrix = np.array(sImagesMatrix)
+
+    return full, sLabels, sImagesMatrix, sImagesList
+
+def mnist_with_contamination(filePath='Numbers.txt', contamination_rate=0.0):
+    import numpy as np
+    imagesList = []
+    imagesMatrix = []
+    labels = []
+    full = []
+
+    with open(filePath, 'r') as file:
+        for line in file:
+            parts = line.strip().split()
+            index = parts[0].strip()
+            label = np.array(int(parts[1]))
+            fullTemp = np.array(list(map(float, parts[1:])))
+            pixels = list(map(float, parts[2:]))
+            pixelArray = np.array(pixels).reshape(16, 16)
+            normArray = (pixelArray + 1) / 2  # now in [0, 1]
+            labels.append(label)
+            imagesMatrix.append(normArray)
+            full.append(fullTemp)
+            imagesList.append(np.array(normArray).reshape(1, 256))
+
+    full = np.array(full)
+    labels = np.array(labels)
+    imagesMatrix = np.array(imagesMatrix)
+    imagesList = np.array(imagesList)
+
+    if contamination_rate > 0.0:
+        n_pixels = 256
+        n_contaminate = int(np.round(contamination_rate * n_pixels))
+        contam_indices = np.random.choice(n_pixels, size=n_contaminate, replace=False)
+
+        # Generate one random value per contaminated pixel (same across all images)
+        random_values = np.random.uniform(0.0, 1.0, size=n_contaminate)
+
+        full[:, contam_indices + 1] = random_values
+        for i in range(len(imagesList)):
+            imagesList[i][0, contam_indices] = random_values
+            imagesMatrix[i].flat[contam_indices] = random_values
+
+    return full, labels, np.array(imagesMatrix), np.array(imagesList)
