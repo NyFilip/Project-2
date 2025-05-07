@@ -1,6 +1,56 @@
 import numpy as np
 from sklearn.feature_selection import f_classif
 
+def custom_feed_forward(X, y, classifier, max_features=None, kfoldCV=None):
+    """
+    Custom feed-forward feature selection.
+    
+    Parameters:
+        X : np.ndarray
+            Feature matrix.
+        y : np.ndarray
+            Labels.
+        classifier : function
+            Classifier function to evaluate features.
+        max_features : int
+            Maximum number of features to select.
+        kfoldCV : function
+            Cross-validation function to evaluate accuracy.
+    
+    Returns:
+        selected_features : list
+            Indices of selected features.
+        accuracies : list
+            Accuracy for each feature added.
+    """
+    if max_features is None:
+        max_features = X.shape[1]
+
+    selected_features = []
+    remaining_features = list(range(X.shape[1]))
+    accuracies = []
+
+    for _ in range(max_features):
+        best_feature = None
+        best_accuracy = 0
+
+        for feature in remaining_features:
+            # Test the current feature set
+            current_features = selected_features + [feature]
+            X_subset = X[:, current_features]
+            accuracy = kfoldCV(data=np.column_stack((y, X_subset)), classifierFunction=classifier, numberOfSplits=2)
+
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_feature = feature
+
+        if best_feature is not None:
+            selected_features.append(best_feature)
+            remaining_features.remove(best_feature)
+            accuracies.append(best_accuracy)
+
+    return selected_features, accuracies
+
 def FeedForward(data,classiferFunction,errorThreshold,maxNumberOfFeatures):
     
     maxLoops=min(maxNumberOfFeatures,data.shape[1]-1)
