@@ -84,7 +84,7 @@ def FeedForward(data,classiferFunction,errorThreshold,maxNumberOfFeatures):
         print("selectedFeatures",selectedFeatures)
     return selectedFeatures
 
-def KFoldCrossValidation(data,classifierFunction,numberOfSplits):
+def KFoldCrossValidation(data,classifierFunction,numberOfSplits,return_folds=False):
         
     
     splitData=np.array_split(data,numberOfSplits,axis=0)
@@ -100,9 +100,13 @@ def KFoldCrossValidation(data,classifierFunction,numberOfSplits):
         accuracy=Accuracy(testLabels,testData[:,0])
         
         accuracyList.append(accuracy)
-    meanAccuracy=np.mean(accuracyList)
+
+    if return_folds:
+        return accuracyList
+    else:
+        return np.mean(accuracyList)
     
-    return meanAccuracy
+    
 
 def KNearestNeighboors(trainingSet, testSet, k=4, norm=2):
     testSetLabels = []

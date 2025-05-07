@@ -16,13 +16,13 @@ feed_forward = filipFunction.custom_feed_forward # Assuming this function exists
 kfoldCV = filipFunction.KFoldCrossValidation
 classifiers = [
     filipFunction.KNearestNeighboors,
-    nilsFunction.QDAClassifier,
-    nilsFunction.MulticlassLogisticClassifier
+    # nilsFunction.QDAClassifier,
+    # nilsFunction.MulticlassLogisticClassifier
 ]
 
 # Datasets to evaluate
 datasets = {
-    "Cats and Dogs": catsAndDogs,
+    # "Cats and Dogs": catsAndDogs,
     "MNIST": mnist
 }
 
@@ -64,7 +64,7 @@ def evaluate_with_ftest_only():
         plt.legend()
         plt.grid(True)
         plt.show()
-def evaluate_with_ftest_and_feed_forward(save_to_file=True):
+def evaluate_with_ftest_and_feed_forward(save_to_file=False):
     """
     Perform F-test preprocessing followed by feed-forward feature selection and evaluate classifiers.
     
@@ -76,8 +76,8 @@ def evaluate_with_ftest_and_feed_forward(save_to_file=True):
 
     for dataset_name, dataset in datasets.items():
         num_features = dataset.shape[1] - 1  # Total features (excluding labels)
-        number_of_features = num_features // 2  # Use half the features for F-test preprocessing
-        number_of_features = 100
+        number_of_features = num_features  # Use half the features for F-test preprocessing
+        # number_of_features = 100
         results[dataset_name] = {}
         feature_accuracies_per_dataset[dataset_name] = {}
         print(dataset_name)
@@ -112,14 +112,15 @@ def evaluate_with_ftest_and_feed_forward(save_to_file=True):
             final_accuracy = kfoldCV(data=filtered_data_selected, classifierFunction=classifier, numberOfSplits=4)
             results[dataset_name][classifier_name].append(final_accuracy)
 
-            # Save accuracies to a text file if save_to_file is True
+            # Save accuracies and feature indices to a text file if save_to_file is True
             if save_to_file:
-                file_name = f"{dataset_name}_{classifier_name}_accuracies.txt".replace(" ", "_")
+                file_name = f"{dataset_name}_{classifier_name}_features_and_accuracies.txt".replace(" ", "_")
                 with open(file_name, "w") as file:
-                    file.write(f"Feed-Forward Feature Selection Accuracies for {classifier_name} on {dataset_name}\n")
-                    file.write("Feature Count, Accuracy\n")
-                    for i, acc in enumerate(accuracies, start=1):
-                        file.write(f"{i}, {acc}\n")
+                    file.write(f"Feed-Forward Feature Selection for {classifier_name} on {dataset_name}\n")
+                    file.write("Feature Index, Accuracy\n")
+                    for feature_idx, acc in zip(selected_features, accuracies):
+                        file.write(f"{feature_idx}, {acc}\n")
+
 
     # Plot the results for feed-forward feature selection
     for dataset_name, dataset_results in feature_accuracies_per_dataset.items():
@@ -133,9 +134,9 @@ def evaluate_with_ftest_and_feed_forward(save_to_file=True):
         plt.legend()
         plt.grid(True)
         plt.show()
-def evaluate_with_kfoldcv_only():
+def evaluate_with_kfoldcv_boxplot():
     """
-    Evaluate classifiers using k-fold cross-validation without feature selection and plot the results.
+    Evaluate classifiers using k-fold cross-validation and plot the results as a box plot.
     """
     results = {}
 
@@ -146,27 +147,24 @@ def evaluate_with_kfoldcv_only():
         for classifier in classifiers:
             classifier_name = classifier.__name__
             print(f"Running {classifier_name}...")
-            results[dataset_name][classifier_name] = []
+            
+            # Perform k-fold cross-validation and collect fold accuracies
+            fold_accuracies = kfoldCV(data=dataset, classifierFunction=classifier, numberOfSplits=4,return_folds=True)
+            results[dataset_name][classifier_name] = fold_accuracies
 
-            # Perform k-fold cross-validation
-            accuracy = kfoldCV(data=dataset, classifierFunction=classifier, numberOfSplits=4)
-            results[dataset_name][classifier_name].append(accuracy)
-
-    # Plot the results
+    # Plot the results as box plots
     for dataset_name, dataset_results in results.items():
         plt.figure(figsize=(10, 6))
         classifier_names = list(dataset_results.keys())
-        accuracies = [dataset_results[classifier_name][0] for classifier_name in classifier_names]
+        accuracies = [dataset_results[classifier_name] for classifier_name in classifier_names]
 
-        plt.bar(classifier_names, accuracies, color='skyblue')
+        plt.boxplot(accuracies, labels=classifier_names, patch_artist=True, boxprops=dict(facecolor='skyblue'))
         plt.title(f"Classifier Performance with k-fold CV on {dataset_name}")
         plt.xlabel("Classifiers")
         plt.ylabel("Accuracy")
-        plt.xticks(rotation=45)
+        # plt.xticks()
         plt.grid(axis='y')
         plt.show()
 
-
-
-evaluate_with_kfoldcv_only()
-# evaluate_with_ftest_and_feed_forward()
+# evaluate_with_kfoldcv_boxplot()
+evaluate_with_ftest_and_feed_forward()
