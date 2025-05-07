@@ -290,7 +290,7 @@ def refine_top_subsections(
 
 results = evaluate_subsections(
     dataset_reader=catdog_subsection,
-    classifier=nF.QDAClassifier,
+    classifier=fF.KNearestNeighboors,
     file_path='catdogdata.txt',
     image_size=64,
     subsection_size=16,
@@ -301,7 +301,7 @@ top_20 = results[:max(3, int(len(results) * 0.2))]
 
 refined = refine_top_subsections(
     dataset_reader=catdog_subsection,
-    classifier=nF.QDAClassifier,
+    classifier=fF.KNearestNeighboors,
     file_path='catdogdata.txt',
     image_size=64,
     subsection_size=16,
@@ -310,14 +310,14 @@ refined = refine_top_subsections(
 
 
 
-side_sizes = [48, 32, 24, 20, 16]
+side_sizes = [64, 48, 32, 24, 20, 16, 12, 8, 4]
 top_spots_by_size = {}
 
 for size in side_sizes:
     # Step 1: Evaluate grid-based subsections
     results = evaluate_subsections(
         dataset_reader=catdog_subsection,
-        classifier=nF.QDAClassifier,
+        classifier=fF.KNearestNeighboors,
         file_path='catdogdata.txt',
         image_size=64,
         subsection_size=size
@@ -330,7 +330,7 @@ for size in side_sizes:
     # Step 3: Refine and store the top 3
     refined_top3 = refine_top_subsections(
         dataset_reader=catdog_subsection,
-        classifier=nF.QDAClassifier,
+        classifier=fF.KNearestNeighboors,
         file_path='catdogdata.txt',
         image_size=64,
         subsection_size=size,
@@ -345,43 +345,70 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+import numpy as np
+import random
+
 def plot_top_subsections_per_size(
-    top_spots_by_size, image_matrix, side_sizes
+    top_spots_by_size, image_matrix_set, side_sizes, num_examples=4
 ):
     """
-    Create one vertical subplot per section size with the top 3 refined subsections shown.
-    Accuracies are shown next to the image, ordered vertically from top to bottom by score.
+    For each block size, plot a separate figure showing multiple images
+    with top 3 subsections overlaid and their accuracies listed beside each image.
     """
-    rank_colors = ['red', 'blue', 'green']  # for top 1, 2, 3
-    num_sizes = len(side_sizes)
-    fig, axes = plt.subplots(num_sizes, 1, figsize=(6, 4 * num_sizes))
+    rank_colors = ['red', 'blue', 'green']  # top 1, 2, 3
 
-    if num_sizes == 1:
-        axes = [axes]
+    for size in side_sizes:
+        top_results = sorted(top_spots_by_size.get(size, []), key=lambda x: -x[1])[:3]
+        random_indices = random.sample(range(len(image_matrix_set)), num_examples)
 
-    for ax, size in zip(axes, side_sizes):
-        ax.imshow(image_matrix, cmap='gray')
-        ax.set_title(f'Subsections for block size {size}×{size}')
-        ax.axis('off')
+        fig, axs = plt.subplots(1, num_examples, figsize=(4 * num_examples + 2, 4))
+        if num_examples == 1:
+            axs = [axs]
 
-        # Sort by accuracy descending
-        top_results = sorted(top_spots_by_size.get(size, []), key=lambda x: -x[1])
+        for col_idx, img_idx in enumerate(random_indices):
+            ax = axs[col_idx]
+            img = image_matrix_set[img_idx]
+            ax.imshow(img, cmap='gray', vmin=0, vmax=1 if np.max(img) <= 1 else 255)
+            ax.axis('off')
 
-        for i, ((x, y), acc) in enumerate(top_results):
-            color = rank_colors[i % len(rank_colors)]
-            rect = patches.Rectangle((x, y), size, size, linewidth=2, edgecolor=color, facecolor='none')
-            ax.add_patch(rect)
-            # Position the text at fixed vertical location: evenly spaced
-            ax.text(image_matrix.shape[1] + 5, (i + 0.5) * (image_matrix.shape[0] / 3),
-                    f'#{i + 1}: {acc:.2f}', color=color, fontsize=10, verticalalignment='center')
+            for i, ((x, y), acc) in enumerate(top_results):
+                color = rank_colors[i % len(rank_colors)]
+                rect = patches.Rectangle((x, y), size, size, linewidth=2, edgecolor=color, facecolor='none')
+                ax.add_patch(rect)
 
-    plt.tight_layout()
-    plt.show()
+                # Accuracy label to the right of the image
+                ax.text(
+                    img.shape[1] + 2,  # x-position just outside the image
+                    (i + 0.5) * (img.shape[0] / 3),  # y evenly spaced
+                    f"#{i + 1}: {acc:.2f}",
+                    color=color,
+                    fontsize=10,
+                    verticalalignment='center'
+                )
+
+        fig.suptitle(f"Top 3 Subsections (Size: {size}×{size})", fontsize=16)
+        plt.tight_layout()
+        plt.show()
 
 
 
 
 _, _, image_matrix, _ = catdog_subsection('catdogdata.txt')
-reference_image = image_matrix[0]
+reference_image = image_matrix[0:2]
+_, _, image_matrix, _ = catdog_subsection('catdogdata.txt')
+plot_top_subsections_per_size(top_spots_by_size, image_matrix, side_sizes)
+def plot_accuracy_vs_block_size(top_spots_by_size):
+    block_sizes = sorted(top_spots_by_size.keys())
+    best_accuracies = [max([acc for (_, acc) in top_spots_by_size[size]]) for size in block_sizes]
 
-plot_top_subsections_per_size(top_spots_by_size, reference_image, side_sizes)
+    plt.figure(figsize=(8, 4))
+    plt.plot(block_sizes, best_accuracies, marker='o')
+    plt.xlabel("Block size")
+    plt.ylabel("Best accuracy")
+    plt.title("Best accuracy vs. block size")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+plot_accuracy_vs_block_size(top_spots_by_size)
