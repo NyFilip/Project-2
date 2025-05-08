@@ -80,15 +80,19 @@ def run_all():
             classifier_name = classifier.__name__
             print(f"\nClassifier: {classifier_name}")
 
-            # 1. Without feature selection
+            # 1. Without feature selection, but with feature count matching FS
             train_data, test_data = split_data(dataset)
 
-            preds = classifier(train_data, test_data)
-            true_labels = test_data[:, 0]
+            # Randomly select same number of features as in FS (excluding label column)
+            num_features_total = dataset.shape[1] - 1
+            number_of_features = min(100, num_features_total // 2)
+            random_feature_indices = np.random.choice(num_features_total, number_of_features, replace=False)
 
-            file_without = f'confusion_matrices/{dataset_name}_{classifier_name}_without_FS.png'
-            C_matrix(true_labels, preds, title=f'{classifier_name} without FS on {dataset_name}',
-                     filename=file_without, class_names=label_names)
+            # Select those features (plus label column at index 0)
+            train_data_subset = np.column_stack((train_data[:, 0], train_data[:, 1:][:, random_feature_indices]))
+            test_data_subset = np.column_stack((test_data[:, 0], test_data[:, 1:][:, random_feature_indices]))
+
+            preds = classifier(train_data_subset, test_data_subset)
 
             # 2. With feature selection
             num_features_total = dataset.shape[1] - 1
