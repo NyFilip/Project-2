@@ -16,7 +16,7 @@ feed_forward = filipFunction.custom_feed_forward # Assuming this function exists
 kfoldCV = filipFunction.KFoldCrossValidation
 classifiers = [
     filipFunction.KNearestNeighboors,
-    nilsFunction.QDAClassifier,
+    #nilsFunction.QDAClassifier,
     nilsFunction.MulticlassLogisticClassifier
 ]
 
