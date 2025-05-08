@@ -101,7 +101,7 @@ def show_example_images_per_contamination(
     dataset_loader,
     file_path,
     contamination_levels,
-    title_prefix="Example (CatDog)"
+    title_prefix="Example (Mnist)"
 ):
     plt.figure(figsize=(4 * len(contamination_levels), 4))
     
@@ -154,12 +154,11 @@ def evaluate_robustness_against_contamination(
 
     return results
 
-contamination_levels = [0.0, 0.01, 0.1, 0.2, 0.4, 0.6, 0.8, 0.95,0.99]
-# Evaluate how QDA holds up to contamination on catdog data
+contamination_levels = [0.0, 0.01, 0.1, 0.2, 0.4, 0.6, 0.8, 0.95,0.99,1]
 robustness_results = evaluate_robustness_against_contamination(
-    dataset_loader=catdog_with_contamination,
-    classifier_fn=fF.KNearestNeighboors,
-    file_path='catdogdata.txt',
+    dataset_loader=mnist_with_contamination,
+    classifier_fn=nF.MulticlassLogisticClassifier,
+    file_path='Numbers.txt',
     contamination_levels =contamination_levels,
     n_splits=5
 )
@@ -178,10 +177,10 @@ def plot_robustness_curve(results, title="Accuracy vs. Contamination"):
     plt.tight_layout()
     plt.show()
 
-plot_robustness_curve(robustness_results, title="Knearestneighbours on CatDog: Accuracy vs. Contamination")
+plot_robustness_curve(robustness_results, title="Multiclass logistic classifyer on Mnist: Accuracy vs. Contamination")
 show_example_images_per_contamination(
-    dataset_loader=catdog_with_contamination,
-    file_path='catdogdata.txt',
+    dataset_loader=mnist_with_contamination,
+    file_path='Numbers.txt',
     contamination_levels=contamination_levels,
-    title_prefix="CatDog"
+    title_prefix="Mnist"
 )

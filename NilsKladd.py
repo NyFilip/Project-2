@@ -289,10 +289,10 @@ def refine_top_subsections(
     return sorted(current_pool, key=lambda x: -x[1])[:3]
 
 results = evaluate_subsections(
-    dataset_reader=catdog_subsection,
-    classifier=fF.KNearestNeighboors,
-    file_path='catdogdata.txt',
-    image_size=64,
+    dataset_reader=mnist_subsection,
+    classifier=nF.MulticlassLogisticClassifier,
+    file_path='Numbers.txt',
+    image_size=16,
     subsection_size=16,
     n_splits=5
 )
@@ -300,26 +300,26 @@ results = evaluate_subsections(
 top_20 = results[:max(3, int(len(results) * 0.2))]
 
 refined = refine_top_subsections(
-    dataset_reader=catdog_subsection,
-    classifier=fF.KNearestNeighboors,
-    file_path='catdogdata.txt',
-    image_size=64,
+    dataset_reader=mnist_subsection,
+    classifier=nF.MulticlassLogisticClassifier,
+    file_path='Numbers.txt',
+    image_size=16,
     subsection_size=16,
     initial_results=top_20
 )
 
 
 
-side_sizes = [64, 48, 32, 24, 20, 16, 12, 8, 4]
+side_sizes = [16, 12, 10, 8, 5, 4, 3, 2]
 top_spots_by_size = {}
 
 for size in side_sizes:
     # Step 1: Evaluate grid-based subsections
     results = evaluate_subsections(
-        dataset_reader=catdog_subsection,
-        classifier=fF.KNearestNeighboors,
-        file_path='catdogdata.txt',
-        image_size=64,
+        dataset_reader=mnist_subsection,
+        classifier=nF.MulticlassLogisticClassifier,
+        file_path='Numbers.txt',
+        image_size=16,
         subsection_size=size
     )
 
@@ -329,10 +329,10 @@ for size in side_sizes:
 
     # Step 3: Refine and store the top 3
     refined_top3 = refine_top_subsections(
-        dataset_reader=catdog_subsection,
-        classifier=fF.KNearestNeighboors,
-        file_path='catdogdata.txt',
-        image_size=64,
+        dataset_reader=mnist_subsection,
+        classifier=nF.MulticlassLogisticClassifier,
+        file_path='Numbers.txt',
+        image_size=16,
         subsection_size=size,
         initial_results=top_20
     )
@@ -395,9 +395,9 @@ def plot_top_subsections_per_size(
 
 
 
-_, _, image_matrix, _ = catdog_subsection('catdogdata.txt')
+_, _, image_matrix, _ = mnist_subsection('Numbers.txt')
 reference_image = image_matrix[0:2]
-_, _, image_matrix, _ = catdog_subsection('catdogdata.txt')
+_, _, image_matrix, _ = mnist_subsection('Numbers.txt')
 plot_top_subsections_per_size(top_spots_by_size, image_matrix, side_sizes)
 def plot_accuracy_vs_block_size(top_spots_by_size):
     block_sizes = sorted(top_spots_by_size.keys())
